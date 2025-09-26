@@ -3,10 +3,10 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 
 class ApiService {
-  static const String baseUrl = "https://jsonplaceholder.typicode.com";
+  final String baseUrl = "https://jsonplaceholder.typicode.com/users";
 
-  Future<List<UserModel>> getUsers() async {
-    final response = await http.get(Uri.parse("$baseUrl/users"));
+  Future<List<UserModel>> fetchUsers() async {
+    final response = await http.get(Uri.parse(baseUrl));
     if (response.statusCode == 200) {
       List data = json.decode(response.body);
       return data.map((e) => UserModel.fromJson(e)).toList();
@@ -17,7 +17,7 @@ class ApiService {
 
   Future<UserModel> createUser(UserModel user) async {
     final response = await http.post(
-      Uri.parse("$baseUrl/users"),
+      Uri.parse(baseUrl),
       headers: {"Content-Type": "application/json"},
       body: json.encode(user.toJson()),
     );
@@ -30,7 +30,7 @@ class ApiService {
 
   Future<UserModel> updateUser(UserModel user) async {
     final response = await http.put(
-      Uri.parse("$baseUrl/users/${user.id}"),
+      Uri.parse("$baseUrl/${user.id}"),
       headers: {"Content-Type": "application/json"},
       body: json.encode(user.toJson()),
     );
@@ -42,7 +42,7 @@ class ApiService {
   }
 
   Future<void> deleteUser(int id) async {
-    final response = await http.delete(Uri.parse("$baseUrl/users/$id"));
+    final response = await http.delete(Uri.parse("$baseUrl/$id"));
     if (response.statusCode != 200) {
       throw Exception("Error al eliminar usuario");
     }

@@ -5,6 +5,7 @@ import '../providers/user_provider.dart';
 
 class UserFormScreen extends StatefulWidget {
   final UserModel? user;
+
   const UserFormScreen({super.key, this.user});
 
   @override
@@ -13,24 +14,23 @@ class UserFormScreen extends StatefulWidget {
 
 class _UserFormScreenState extends State<UserFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  late String name;
-  late String email;
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
 
   @override
   void initState() {
     super.initState();
-    name = widget.user?.name ?? '';
-    email = widget.user?.email ?? '';
+    _nameController = TextEditingController(text: widget.user?.name ?? '');
+    _emailController = TextEditingController(text: widget.user?.email ?? '');
   }
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final provider = Provider.of<UserProvider>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.user == null ? "Crear Usuario" : "Editar Usuario"),
-      ),
+          title: Text(widget.user == null ? "Nuevo Usuario" : "Editar Usuario")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -38,38 +38,56 @@ class _UserFormScreenState extends State<UserFormScreen> {
           child: Column(
             children: [
               TextFormField(
-                initialValue: name,
-                decoration: const InputDecoration(labelText: "Nombre"),
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: "Nombre",
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white38)),
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.indigo)),
+                ),
                 validator: (value) =>
                     value == null || value.isEmpty ? "Campo requerido" : null,
-                onSaved: (value) => name = value!,
               ),
               TextFormField(
-                initialValue: email,
-                decoration: const InputDecoration(labelText: "Email"),
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: "Email",
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white38)),
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.indigo)),
+                ),
                 validator: (value) =>
                     value == null || value.isEmpty ? "Campo requerido" : null,
-                onSaved: (value) => email = value!,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                ),
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
+                    final user = UserModel(
+                      id: widget.user?.id ?? 0,
+                      name: _nameController.text,
+                      email: _emailController.text,
+                    );
                     if (widget.user == null) {
-                      userProvider.addUser(
-                        UserModel(id: 0, name: name, email: email),
-                      );
+                      provider.addUser(user);
                     } else {
-                      userProvider.updateUser(
-                        UserModel(id: widget.user!.id, name: name, email: email),
-                      );
+                      provider.updateUser(user);
                     }
                     Navigator.pop(context);
                   }
                 },
-                child: Text(widget.user == null ? "Guardar" : "Actualizar"),
-              )
+                child: Text(widget.user == null ? "Crear" : "Actualizar",
+                    style: const TextStyle(color: Colors.white)),
+              ),
             ],
           ),
         ),

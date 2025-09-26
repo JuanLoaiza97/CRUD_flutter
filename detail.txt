@@ -1,0 +1,11 @@
+Primary: Colors.indigo
+
+Background: Colors.grey[100] (claro)
+
+Textos principales: Colors.black87
+
+Textos secundarios: Colors.grey[600]
+
+Botones: Indigo con bordes redondeados
+
+Cards: Blanco con sombra sutil

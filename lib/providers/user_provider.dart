@@ -2,19 +2,24 @@ import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 
-class UserProvider with ChangeNotifier {
+class UserProvider extends ChangeNotifier {
   final ApiService apiService = ApiService();
   List<UserModel> _users = [];
   bool isLoading = false;
 
   List<UserModel> get users => _users;
 
-  Future<void> fetchUsers() async {
+  Future<void> loadUsers() async {
     isLoading = true;
     notifyListeners();
-    _users = await apiService.getUsers();
-    isLoading = false;
-    notifyListeners();
+    try {
+      _users = await apiService.fetchUsers();
+    } catch (e) {
+      _users = [];
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> addUser(UserModel user) async {
@@ -24,10 +29,10 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> updateUser(UserModel user) async {
-    final updatedUser = await apiService.updateUser(user);
-    int index = _users.indexWhere((u) => u.id == user.id);
+    final updated = await apiService.updateUser(user);
+    final index = _users.indexWhere((u) => u.id == user.id);
     if (index != -1) {
-      _users[index] = updatedUser;
+      _users[index] = updated;
       notifyListeners();
     }
   }
